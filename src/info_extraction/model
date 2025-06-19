@@ -1,0 +1,64 @@
+from google import genai
+from schema_definition import Cena
+import json
+import os
+
+# --- Configuração do Cliente ---
+# Substitua "SUA_GOOGLE_API_KEY" pela sua chave de API real.
+# É uma boa prática usar variáveis de ambiente ou um sistema de gerenciamento de segredos.
+try:
+    api_key = os.environ.get('API_KEY')
+    client = genai.Client(api_key=api_key)
+except Exception as e:
+    # Se a chave não for fornecida, o código não executará a chamada de API.
+    # Apenas simularemos a resposta para fins de demonstração.
+    client = None
+    print("Cliente GenAI não configurado.")
+
+
+# --- Texto do Cenário para Extração ---
+# Você pode substituir este texto por qualquer outra descrição.
+cenario_para_analise = """
+A imagem retrata uma cena noturna de uma rua tranquila e mal iluminada. O ambiente parece ser uma área urbana ou suburbana. A rua é estreita e tem uma superfície desgastada, possivelmente de concreto ou asfalto, com rachaduras e descoloração visíveis. No lado esquerdo da rua, há um edifício branco com um telhado escuro, parcialmente iluminado por uma fonte de luz fraca, possivelmente um poste de luz ou a iluminação da fachada de um prédio. À direita, há um muro branco com uma cerca de arame farpado no topo, sugerindo um limite ou cercamento. No fundo, há árvores e estruturas adicionais, algumas das quais estão levemente iluminadas, indicando que a área pode ser pouco povoada ou não densamente urbanizada. O céu está escuro, e a atmosfera geral é de quietude e calma, típica de uma cena noturna em uma parte residencial ou menos movimentada de uma cidade ou vila. A falta de atividade visível sugere que pode ser tarde da noite com mínima presença humana.
+"""
+
+# --- Executando a Extração ---
+response = client.models.generate_content(
+    model="gemini-1.5-flash",
+    contents=f"Extraia as informações detalhadas do seguinte cenário e estruture a saída estritamente de acordo com o esquema JSON fornecido. Cenário: {cenario_para_analise}",
+    config={
+        "response_mime_type": "application/json",
+        "response_schema": Cena,
+    },
+)
+# Use o objeto Pydantic diretamente
+cena_extraida = response.parsed
+
+# Use o texto JSON para visualização
+json_output_text = response.text
+
+
+# --- Exibindo os Resultados ---
+
+print("\n--- Saída em formato JSON ---")
+print(json_output_text)
+
+print("\n--- Acessando os Dados como Objetos Python ---")
+print(f"Título: {cena_extraida.titulo_da_cena}")
+print(f"Local: {cena_extraida.localizacao.tipo_de_ambiente} em uma {cena_extraida.localizacao.cidade} ao {cena_extraida.localizacao.momento_do_dia}.")
+
+print("\n>> Pessoas na Cena:")
+for pessoa in cena_extraida.pessoas_presentes:
+    print(f"  - {pessoa.descricao} (Quantidade: {pessoa.quantidade}), Ação: {pessoa.acao}")
+
+print("\n>> Estruturas na Cena:")
+for estrutura in cena_extraida.estruturas_presentes:
+    print(f"  - {estrutura.tipo} de estilo {estrutura.estilo_arquitetonico} com os seguintes detalhes: {', '.join(estrutura.detalhes)}.")
+
+print("\n>> Veículos na Cena:")
+for veiculo in cena_extraida.veiculos_presentes:
+    print(f"  - Um {veiculo.tipo} {veiculo.cor or ''} que está {veiculo.estado}.")
+
+print("\n>> Outros Objetos:")
+for obj in cena_extraida.objetos_diversos:
+    print(f"  - {obj.quantidade}x {obj.nome_do_objeto} de {obj.material or 'material não especificado'}. Detalhe: {obj.detalhes_adicionais or 'N/A'}")
