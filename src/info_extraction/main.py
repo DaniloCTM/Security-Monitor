@@ -19,24 +19,7 @@ except Exception as e:
 
 descricoes_de_locais = [
     # Exemplo 1: Alto Risco (o mesmo de antes)
-    """
-    A imagem retrata uma cena noturna de uma rua tranquila e mal iluminada. O ambiente parece ser uma área urbana ou suburbana.
-    A rua é estreita e tem uma superfície desgastada, com rachaduras e descoloração visíveis. No lado esquerdo, um poste de luz emite uma luz fraca.
-    À direita, há um muro branco alto com uma cerca de arame farpado no topo. O local está completamente deserto.
-    A atmosfera geral é de abandono e falta de cuidado.
-    """,
-    # Exemplo 2: Baixo Risco
-    """
-    Descrição de uma praça pública bem cuidada ao entardecer. A iluminação é excelente, com postes de LED altos e luzes de chão destacando os caminhos.
-    Há muitas pessoas no local: crianças brincando em um playground moderno, casais sentados em bancos de madeira limpos e grupos conversando perto de um quiosque de café.
-    Os jardins são bem mantidos, com flores coloridas e grama aparada, que servem como barreiras simbólicas claras para as áreas de passagem. Uma câmera de segurança é visível em um poste.
-    """,
-    # Exemplo 3: Risco Moderado
-    """
-    Foto de um beco de serviço nos fundos de uma área comercial durante o dia. Funcionários de lojas estão fumando em uma pausa.
-    Grandes lixeiras de metal estão alinhadas contra uma parede, criando alguns pontos cegos. Uma das paredes tem pichações extensas.
-    A iluminação parece ser apenas uma lâmpada nua, provavelmente ineficaz à noite. A passagem é restrita, mas não há portões, servindo como um atalho para pedestres.
-    """
+   """The image depicts a street scene at night with several individuals walking along the sidewalk. Here\'s an analysis based on the four key components of Crime Prevention Through Environmental Design (CPTED):\n\n1. *Surveillance:\n   - The presence of streetlights provides ambient lighting, which can deter criminal activity by making the area more visible to potential perpetrators. However, the image suggests that the lighting is not sufficient to ensure complete visibility or coverage of the entire area.\n   - There are no visible security cameras or other forms of active surveillance in the image, which could be a concern for maintaining a safe environment.\n\n2. **Access Control/Territoriality:\n   - The sidewalk appears to be relatively clear of obstructions, allowing for easy pedestrian movement. This can contribute to a sense of safety and territoriality for pedestrians.\n   - The presence of parked cars and the lack of barriers or gates near the entrance suggest that access control measures might be minimal. This could make it easier for unauthorized individuals to enter the area.\n   - The signage indicating "No Parking" and "No Stopping" implies some level of territoriality, but the enforcement of these rules is not evident from the image alone.\n\n3. **Maintenance:\n   - The sidewalk looks clean and well-maintained, which can contribute to a positive perception of the area and reduce the likelihood of criminal activity.\n   - The condition of the road and surrounding structures appears to be in good repair, suggesting that regular maintenance is being conducted. However, the overall cleanliness and orderliness of the area could be improved further.\n\n4. **Support for Legitimate Activities:*\n   - The presence of people walking along the sidewalk indicates that the area supports legitimate activities such as commuting, shopping, or socializing.\n   - The image does not show any signs of commercial establishments or public spaces that could provide additional support for legitimate activities, such as cafes, shops, or community centers.\n   - The lack of visible public transportation options or designated areas for waiting could limit the support for legitimate activities in this area.\n\nIn conclusion, while the image shows a relatively clean and well-lit street, there are several areas for improvement in terms of surveillance, access control, maintenance, and support for legitimate activities. Implementing additional security measures, such as surveillance cameras and active patrols, could enhance the safety of the area. Ensuring proper access control through barriers or gates near entrances would also help maintain territoriality. Regular maintenance and the addition of public spaces or commercial establishments could further support legitimate activities in the area."""
 ]
 # --- 4. Processamento em Lote e Geração do CSV ---
 
@@ -71,9 +54,9 @@ if lista_de_resultados_achatados:
     print("\nProcessamento concluído. Criando DataFrame e salvando em CSV...")
     
     df_final = pd.DataFrame(lista_de_resultados_achatados)
-    reports_path = "src/info_extraction/reports"
-    nome_do_arquivo_csv = os.path.join(reports_path,'relatorio_cpted_multiplas_analises.csv')
-    
+    reports_path = "src/data/reports"
+    nome_do_arquivo_csv = os.path.join(reports_path,'relatorio_cpted_multiplas_analises1.csv')
+
     # Garante que o diretório "reports" exista antes de salvar o arquivo
     os.makedirs(os.path.dirname(nome_do_arquivo_csv), exist_ok=True)
 
