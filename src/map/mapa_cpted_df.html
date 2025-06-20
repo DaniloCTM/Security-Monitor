@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9d225ae1c366f9c169109ef3e01fb6ef {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_9d225ae1c366f9c169109ef3e01fb6ef" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9d225ae1c366f9c169109ef3e01fb6ef = L.map(
+                "map_9d225ae1c366f9c169109ef3e01fb6ef",
+                {
+                    center: [-15.7939, -47.8828],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_893014390f725a716af9b4b661d2065f = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_893014390f725a716af9b4b661d2065f.addTo(map_9d225ae1c366f9c169109ef3e01fb6ef);
+        
+    
+            var marker_b157ec545d55787f6fedf15d4cf73b67 = L.marker(
+                [-15.7939, -47.8828],
+                {
+}
+            ).addTo(map_9d225ae1c366f9c169109ef3e01fb6ef);
+        
+    
+            var icon_1e36ff64b095e3920dfeaa1ebe7fb70a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_eb281322e935f4136f19f6b485a2826a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_bfb50ce4d74a774aa0a966a3f4163a19 = $(`<div id="html_bfb50ce4d74a774aa0a966a3f4163a19" style="width: 100.0%; height: 100.0%;">         <div style="width:250px;">           <strong>Análise CPTED de Rua Noturna Mal Iluminada</strong><br>           Índice CPTED: <em>Baixo / Fraco</em><br>           <details>             <summary style="cursor:pointer;color:blue;">Ver mais</summary>             <ul style="padding-left:1em;margin:0;">               <li><strong>Data:</strong> —</li>               <li><strong>Resumo:</strong> A rua apresenta significativos problemas de segurança relacionados à falta de iluminação, ausência de vigilância natural e formal, e sinais de abandono que contribuem para uma percepção de vulnerabilidade. O alto muro com arame farpado, embora represente um controle de acesso, não compensa os outros fatores negativos. Recomenda-se uma intervenção para melhorar a iluminação, a manutenção e promover o uso do espaço.</li>               <li><strong>Recomendações:</strong> —</li>             </ul>           </details>         </div>         </div>`)[0];
+                popup_eb281322e935f4136f19f6b485a2826a.setContent(html_bfb50ce4d74a774aa0a966a3f4163a19);
+            
+        
+
+        marker_b157ec545d55787f6fedf15d4cf73b67.bindPopup(popup_eb281322e935f4136f19f6b485a2826a)
+        ;
+
+        
+    
+    
+                marker_b157ec545d55787f6fedf15d4cf73b67.setIcon(icon_1e36ff64b095e3920dfeaa1ebe7fb70a);
+            
+    
+            var marker_a853e69b935f85fee212897ca2580448 = L.marker(
+                [-15.799, -47.865],
+                {
+}
+            ).addTo(map_9d225ae1c366f9c169109ef3e01fb6ef);
+        
+    
+            var icon_1bc088d4cecfb953f253f6acc1d17083 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_fad79062aa02831c42aefeb057452b65 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a7eb8c7746e4fafffa8c8f3e4c58d745 = $(`<div id="html_a7eb8c7746e4fafffa8c8f3e4c58d745" style="width: 100.0%; height: 100.0%;">         <div style="width:250px;">           <strong>Análise CPTED da Praça Pública</strong><br>           Índice CPTED: <em>Alto / Forte</em><br>           <details>             <summary style="cursor:pointer;color:blue;">Ver mais</summary>             <ul style="padding-left:1em;margin:0;">               <li><strong>Data:</strong> —</li>               <li><strong>Resumo:</strong> A praça pública apresenta um alto nível de segurança, devido à excelente iluminação, monitoramento por câmeras, boa manutenção e alta ocupação por usuários legítimos. A clareza territorial, a vigilância natural e a presença de atividades positivas contribuem significativamente para a sensação e a realidade de segurança.</li>               <li><strong>Recomendações:</strong> —</li>             </ul>           </details>         </div>         </div>`)[0];
+                popup_fad79062aa02831c42aefeb057452b65.setContent(html_a7eb8c7746e4fafffa8c8f3e4c58d745);
+            
+        
+
+        marker_a853e69b935f85fee212897ca2580448.bindPopup(popup_fad79062aa02831c42aefeb057452b65)
+        ;
+
+        
+    
+    
+                marker_a853e69b935f85fee212897ca2580448.setIcon(icon_1bc088d4cecfb953f253f6acc1d17083);
+            
+    
+            var marker_b815b53a4751182022b12ef943fb8ffd = L.marker(
+                [-15.76, -47.9],
+                {
+}
+            ).addTo(map_9d225ae1c366f9c169109ef3e01fb6ef);
+        
+    
+            var icon_1e90d446150babddf436c561d1df2f5c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_04b2d80c907cc945663d3f17896a7c04 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_bb9f25d9f42f6e379e028e9c59b0b51b = $(`<div id="html_bb9f25d9f42f6e379e028e9c59b0b51b" style="width: 100.0%; height: 100.0%;">         <div style="width:250px;">           <strong>Análise CPTED: Beco de Serviço em Área Comercial</strong><br>           Índice CPTED: <em>Baixo / Fraco</em><br>           <details>             <summary style="cursor:pointer;color:blue;">Ver mais</summary>             <ul style="padding-left:1em;margin:0;">               <li><strong>Data:</strong> —</li>               <li><strong>Resumo:</strong> O beco apresenta diversos problemas de segurança, com baixa vigilância natural devido a pontos cegos e iluminação deficiente. O controle de acesso é praticamente inexistente, a manutenção é precária (pichações, lixo), e o suporte a atividades legítimas é mínimo. Recomenda-se melhorias significativas na iluminação, remoção de pontos cegos, limpeza e pintura, além de mecanismos de controle de acesso.</li>               <li><strong>Recomendações:</strong> —</li>             </ul>           </details>         </div>         </div>`)[0];
+                popup_04b2d80c907cc945663d3f17896a7c04.setContent(html_bb9f25d9f42f6e379e028e9c59b0b51b);
+            
+        
+
+        marker_b815b53a4751182022b12ef943fb8ffd.bindPopup(popup_04b2d80c907cc945663d3f17896a7c04)
+        ;
+
+        
+    
+    
+                marker_b815b53a4751182022b12ef943fb8ffd.setIcon(icon_1e90d446150babddf436c561d1df2f5c);
+            
+</script>
+</html>
