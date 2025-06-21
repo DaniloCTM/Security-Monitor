@@ -17,3 +17,6 @@ pandas==2.3.0
 Flask==2.2.5
 werkzeug==2.3.8
 psycopg2-binary
+
+# Usado para visualização de dados
+folium

@@ -1,4 +1,3 @@
-# src/info_extraction/agent.py
 from .schemas import AnaliseCptedDoLocal
 from .prompts import construct_prompt_cpted
 from src import config
