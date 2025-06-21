@@ -1,9 +1,14 @@
 import os
+import sys
+# Adiciona o diretório pai ao sys.path para importar corretamente o database_manager
+sys.path.append(os.path.abspath(os.path.join(__file__, "../../../")))
+
+
 import pandas as pd
 import folium
 from typing import Optional
 # Importa o gerenciador de banco de dados do seu projeto de API
-from src import database_manager as db
+import database_manager as db
 
 def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
     """
@@ -26,12 +31,11 @@ def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
     # Certifica que as colunas numéricas são do tipo correto
     df['lat'] = pd.to_numeric(df['lat'])
     df['lon'] = pd.to_numeric(df['lon'])
-    df['indice_cpted_geral'] = pd.to_numeric(df['indice_cpted_geral'])
 
     # 3. Função de cor CORRIGIDA: opera com valores numéricos
     def cor_icone(indice: float) -> str:
-        if indice < 0.4: return 'red'      # Risco Alto
-        if indice < 0.7: return 'orange'   # Risco Moderado
+        if indice == "Baixo / Fraco" or "Inexistente": return 'red'      # Risco Alto
+        if indice == "Moderado": return 'orange'   # Risco Moderado
         return 'green'                     # Risco Baixo / Seguro
 
     # 4. Cria o mapa centrado no primeiro ponto da lista
@@ -45,7 +49,7 @@ def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
         popup_html = f"""
         <div style="width:280px; font-family: sans-serif; font-size: 14px;">
           <h4 style="margin:0 0 10px 0;font-size:16px;">{row.get('titulo_analise', 'Análise Sem Título')}</h4>
-          <b>Índice CPTED Geral:</b> {row.get('indice_cpted_geral', 'N/A'):.2f}<br>
+          <b>Índice CPTED Geral:</b> {row.get('indice_cpted_geral', 'N/A')}<br>
           <details style="margin-top:10px;">
             <summary style="cursor:pointer;color:blue;font-size:12px;">Ver detalhes</summary>
             <ul style="padding-left:20px;margin-top:5px; font-size:12px; list-style-type: square;">
