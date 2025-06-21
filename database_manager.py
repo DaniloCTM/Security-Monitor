@@ -224,21 +224,14 @@ def add_pipeline_output(capture_id: int, dados: AnaliseCptedDoLocal) -> Optional
 def get_all_analyses_for_map() -> List[Dict[str, Any]]:
     """
     Busca no banco de dados todas as análises que possuem coordenadas geográficas
-    para a geração do mapa.
-
-    Junta informações das tabelas 'capture' e 'pipeline_output'.
-
-    Returns:
-        List[Dict[str, Any]]: Uma lista de dicionários, onde cada dicionário
-                              representa uma análise com seus dados e coordenadas.
-                              Retorna uma lista vazia se não houver dados.
+    para a geração do mapa, incluindo a URL da imagem de captura.
     """
-    # Esta query une as capturas com seus respectivos resultados de pipeline,
-    # pegando apenas aqueles que têm coordenadas válidas.
+
     sql = """
         SELECT
             c.lat,
-            c.long AS lon, -- Renomeia 'long' para 'lon' para compatibilidade com o código do mapa
+            c.long AS lon,
+            c.url AS capture_url,
             po.titulo_analise,
             po.indice_cpted_geral,
             po.resumo_executivo,
@@ -255,10 +248,8 @@ def get_all_analyses_for_map() -> List[Dict[str, Any]]:
     results = []
     try:
         conn = get_db_connection()
-        # Usar DictCursor é perfeito para converter o resultado para um DataFrame depois
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             cur.execute(sql)
-            # fetchall() retorna uma lista de todas as linhas encontradas
             results = [dict(row) for row in cur.fetchall()]
     except (Exception, psycopg2.Error) as error:
         print(f"Erro ao buscar dados para o mapa: {error}")
