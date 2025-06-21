@@ -1,0 +1,28 @@
+services:
+  android-dev:
+    build: .
+    container_name: react_native_android_dev
+    # Mantém o terminal interativo
+    tty: true
+    # Mapeia as portas
+    ports:
+      - "8081:8081" # Metro Bundler
+      - "5037:5037" # ADB (para robustez da ponte)
+    
+    # Volumes otimizados
+    volumes:
+      - ./:/app
+      - node_modules_volume:/app/node_modules
+      - gradle_cache_volume:/root/.gradle
+      
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+    # Variável que diz ao ADB dentro do container onde encontrar o servidor do Windows
+    environment:
+      - ADB_SERVER_SOCKET=tcp:host.docker.internal:5037
+
+# Definição dos volumes nomeados
+volumes:
+  node_modules_volume:
+  gradle_cache_volume:
