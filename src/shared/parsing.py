@@ -1,8 +1,8 @@
-from ..schema_config import AnaliseCptedDoLocal
+from src.info_extraction.schemas import AnaliseCptedDoLocal
 from typing import Dict, Any
 
 
-def achatar_analise(analise: AnaliseCptedDoLocal) -> Dict[str, Any]:
+def achatar_analise_cpted(analise: AnaliseCptedDoLocal) -> Dict[str, Any]:
     """
     Converte um objeto de análise CPTED em um dicionário achatado,
     pronto para ser adicionado a um DataFrame.
