@@ -27,24 +27,25 @@ def get_db_connection():
         print(f"ERRO CRÍTICO: Não foi possível conectar ao banco de dados. {e}")
         raise
 
-def add_user_app(name: str, email: str, hashed_password: str) -> Optional[int]:
+def add_user_app(name: str, email: str, cpf: str, hashed_password: str) -> Optional[int]:
     """
     Adiciona um novo usuário do aplicativo (quem tira a foto) ao banco de dados.
 
     Args:
         name: Nome do usuário.
         email: Email do usuário (deve ser único).
+        cpf: CPF do usuário (deve ser único).
         hashed_password: Senha do usuário já criptografada.
 
     Retorna:
         O ID do novo usuário ou None em caso de erro.
     """
-    sql = "INSERT INTO user_app (name, email, password) VALUES (%s, %s, %s) RETURNING id;"
+    sql = "INSERT INTO user_app (name, email, cpf, password) VALUES (%s, %s, %s, %s) RETURNING id;"
     conn = None
     try:
         conn = get_db_connection()
         with conn.cursor() as cur:
-            cur.execute(sql, (name, email, hashed_password))
+            cur.execute(sql, (name, email, cpf, hashed_password))
             user_id = cur.fetchone()[0]
             conn.commit()
             return user_id
@@ -60,7 +61,7 @@ def add_user_app(name: str, email: str, hashed_password: str) -> Optional[int]:
         if conn:
             conn.close()
 
-def add_user_platform(name: str, email: str, hashed_password: str) -> Optional[int]:
+def add_user_platform(name: str, email: str, cpf:str, hashed_password: str) -> Optional[int]:
     """
     Adiciona um novo usuário da plataforma (dashboard, admin) ao banco de dados.
 
@@ -71,6 +72,7 @@ def add_user_platform(name: str, email: str, hashed_password: str) -> Optional[i
     Args:
         name (str): O nome completo do usuário.
         email (str): O email do usuário, que deve ser único.
+        cpf (str): O CPF do usuário, que deve ser único.
         hashed_password (str): A senha já processada por um hash.
 
     Returns:
@@ -78,7 +80,7 @@ def add_user_platform(name: str, email: str, hashed_password: str) -> Optional[i
                          (por exemplo, se o email já existir).
     """
     # O SQL para inserir um novo usuário na tabela user_platform e retornar seu id.
-    sql = "INSERT INTO user_platform (name, email, password) VALUES (%s, %s, %s) RETURNING id;"
+    sql = "INSERT INTO user_platform (name, email, cpf, password) VALUES (%s, %s, %s, %s) RETURNING id;"
     
     conn = None
     try:
@@ -86,7 +88,7 @@ def add_user_platform(name: str, email: str, hashed_password: str) -> Optional[i
         conn = get_db_connection()
         with conn.cursor() as cur:
             # Executa o comando SQL, passando os dados de forma segura
-            cur.execute(sql, (name, email, hashed_password))
+            cur.execute(sql, (name, email, cpf, hashed_password))
             
             # Pega o ID retornado pelo comando 'RETURNING id'
             user_id = cur.fetchone()[0]

@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from pipeline import run_full_pipeline
+from database_manager import add_user_app
+from database_manager import find_user_by_email
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -7,6 +9,16 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return 'Hello, World!'
+
+@app.route('/add_user')
+def add_user():
+    add_user_app("João Silva", "joãoexample@gmail", "12345678901", "password")
+    return 'User added successfully!'
+
+@app.route('/check_user')
+def check_user():
+    data = find_user_by_email("joãoexample@gmail")
+    return data if data else 'User not found!'
 
 @app.route('/run-pipeline', methods=['POST'])
 def run_pipeline():
