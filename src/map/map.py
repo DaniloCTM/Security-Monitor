@@ -1,23 +1,37 @@
 import os
 import sys
-# Adiciona o diretório pai ao sys.path para importar corretamente o database_manager
 sys.path.append(os.path.abspath(os.path.join(__file__, "../../../")))
-
 
 import pandas as pd
 import folium
-from typing import Optional
-# Importa o gerenciador de banco de dados do seu projeto de API
+from typing import Optional, Dict, Any
 import database_manager as db
 
-def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
+# --- NOVA FUNÇÃO AUXILIAR ---
+def converter_url_imgur(url: Optional[str]) -> Optional[str]:
     """
-    Gera um mapa Folium como string HTML, consumindo dados diretamente
-    do banco de dados.
+    Converte uma URL de página do Imgur em uma URL de imagem direta.
+    Ex: 'https://imgur.com/aBcDeF' -> 'https://i.imgur.com/aBcDeF.jpg'
+    """
+    if not url or not isinstance(url, str):
+        return None
+    
+    # Se já for um link direto (i.imgur.com), apenas retorna
+    if url.startswith("https://i.imgur.com"):
+        return url
+        
+    # Se for um link de página, converte
+    if url.startswith("https://imgur.com/"):
+        image_id = url.split("/")[-1]
+        return f"https://i.imgur.com/{image_id}.jpg" # .jpg é um padrão seguro
 
-    Retorna o HTML do mapa ou None se não houver dados para exibir.
+    return url # Retorna a URL original se não corresponder aos padrões conhecidos
+
+
+def gerar_mapa_de_marcadores_html(zoom_start: int = 12) -> Optional[str]:
     """
-    # 1. Busca os dados do banco de dados usando o database_manager
+    Gera um mapa Folium com marcadores, com popups responsivos que não saem da tela.
+    """
     print("Buscando dados de análise do banco de dados...")
     dados_do_banco = db.get_all_analyses_for_map()
 
@@ -25,31 +39,41 @@ def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
         print("Nenhum dado com coordenadas encontrado no banco de dados para gerar o mapa.")
         return None
 
-    # 2. Converte os dados em um DataFrame do Pandas
     df = pd.DataFrame(dados_do_banco)
-    
-    # Certifica que as colunas numéricas são do tipo correto
     df['lat'] = pd.to_numeric(df['lat'])
     df['lon'] = pd.to_numeric(df['lon'])
 
-    # 3. Função de cor CORRIGIDA: opera com valores numéricos
-    def cor_icone(indice: float) -> str:
-        if indice == "Baixo / Fraco" or "Inexistente": return 'red'      # Risco Alto
-        if indice == "Moderado": return 'orange'   # Risco Moderado
-        return 'green'                     # Risco Baixo / Seguro
+    def cor_icone(indice_str: Optional[str]) -> str:
+        # ... (função de cor existente, sem alterações)
+        if not isinstance(indice_str, str): return 'gray'
+        lower_indice = indice_str.lower()
+        if any(keyword in lower_indice for keyword in ['baixo', 'fraco', 'inexistente']): return 'red'
+        if 'moderado' in lower_indice or 'médio' in lower_indice: return 'orange'
+        if 'forte' in lower_indice or 'alto' in lower_indice: return 'green'
+        return 'gray'
 
-    # 4. Cria o mapa centrado no primeiro ponto da lista
     centro = [df.iloc[0]['lat'], df.iloc[0]['lon']]
     m = folium.Map(location=centro, zoom_start=zoom_start, tiles="cartodbpositron")
 
-    # 5. Adiciona os marcadores ao mapa
     print(f"Adicionando {len(df)} marcadores ao mapa...")
     for _, row in df.iterrows():
-        # Formata o HTML do popup, usando .get() para lidar com valores nulos
+        indice_atual = row.get('indice_cpted_geral', 'N/A')
+        original_url = row.get('capture_url')
+        imagem_url_direta = converter_url_imgur(original_url)
+
+        imagem_html = ""
+        if imagem_url_direta:
+            imagem_html = f"""
+            <a href="{original_url}" target="_blank" title="Clique para ver no Imgur">
+                <img src="{imagem_url_direta}" alt="Imagem da Análise" style="width:100%; border-radius:5px; margin-top:10px;">
+            </a>
+            """
+        
+        # --- POPUP ATUALIZADO COM CSS RESPONSIVO ---
         popup_html = f"""
-        <div style="width:280px; font-family: sans-serif; font-size: 14px;">
+        <div style="width: 280px; max-height: 250px; overflow-y: auto; word-wrap: break-word; font-family: sans-serif; font-size: 14px;">
           <h4 style="margin:0 0 10px 0;font-size:16px;">{row.get('titulo_analise', 'Análise Sem Título')}</h4>
-          <b>Índice CPTED Geral:</b> {row.get('indice_cpted_geral', 'N/A')}<br>
+          <b>Índice CPTED Geral:</b> {indice_atual}<br>
           <details style="margin-top:10px;">
             <summary style="cursor:pointer;color:blue;font-size:12px;">Ver detalhes</summary>
             <ul style="padding-left:20px;margin-top:5px; font-size:12px; list-style-type: square;">
@@ -58,26 +82,25 @@ def gerar_mapa_cpted_html(zoom_start: int = 12) -> Optional[str]:
               <li><b>Recomendações:</b> {row.get('recomendacoes', 'N/A')}</li>
             </ul>
           </details>
+          {imagem_html}
         </div>
         """
+        
         folium.Marker(
             [row['lat'], row['lon']],
             popup=folium.Popup(popup_html, max_width=300),
             tooltip=row.get('titulo_analise', ''),
-            icon=folium.Icon(color=cor_icone(row['indice_cpted_geral']), icon='shield-alt', prefix='fa')
+            icon=folium.Icon(color=cor_icone(indice_atual), icon='shield-alt', prefix='fa')
         ).add_to(m)
 
-    # 6. Retorna o HTML completo como uma string
-    print("Geração do mapa concluída.")
-    return m._repr_html_() # Retorna o HTML completo
+    print("Geração do mapa de marcadores concluída.")
+    return m._repr_html_()
 
 # Exemplo de uso:
 if __name__ == "__main__":
-    # Esta função agora não precisa de nenhum parâmetro para buscar os dados!
-    html_mapa = gerar_mapa_cpted_html()
+    html_mapa = gerar_mapa_de_marcadores_html()
 
     if html_mapa:
-        # Salva o mapa em um arquivo HTML para fácil visualização e teste
-        with open("mapa_de_analises.html", "w", encoding='utf-8') as f:
+        with open("mapa_de_marcadores_com_imagens.html", "w", encoding='utf-8') as f:
             f.write(html_mapa)
-        print("\nMapa salvo com sucesso em 'mapa_de_analises.html'")
+        print("\nMapa salvo com sucesso em 'mapa_de_marcadores_com_imagens.html'")
