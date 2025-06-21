@@ -5,6 +5,7 @@ from database_manager import add_capture
 from database_manager import add_pipeline_output
 from database_manager import get_full_analysis_by_url
 from database_manager import login_user_app
+from database_manager import get_all_captures_by_user
 from werkzeug.security import generate_password_hash
 from src.map.map import gerar_mapa_cpted_html
 
@@ -87,7 +88,7 @@ def get_analysis():
     
     return jsonify(result), 200
 
-@app.route('/   ')
+@app.route('/generate_map')
 def generate_map():    
     map_html = gerar_mapa_cpted_html()
     
@@ -95,3 +96,17 @@ def generate_map():
         return jsonify({"error": "Nenhum dado encontrado para gerar o mapa"}), 404
     
     return map_html, 200
+
+@app.route('/user_photos', methods=['GET'])
+def user_photos():
+    data = request.get_json()
+    user_app_id = data.get('user_app_id')
+    if not user_app_id:
+        return jsonify({"error": "ID do usuário é obrigatório"}), 400
+    
+    photos = get_all_captures_by_user(int(user_app_id))
+    
+    if not photos:
+        return jsonify({"error": "Nenhuma foto encontrada para este usuário"}), 404
+    
+    return jsonify(photos), 200

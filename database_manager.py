@@ -327,8 +327,12 @@ def get_all_captures_by_user(user_id: int) -> List[Dict[str, Any]]:
             c.url AS capture_url,
             c.date AS capture_date,
             c.lat,
-            c.long,
-            (SELECT row_to_json(po) FROM pipeline_output po WHERE po.capture_id = c.id) AS pipeline_results
+            c."long",
+            (
+                SELECT COALESCE(json_agg(row_to_json(po)), '[]'::json)
+                FROM pipeline_output po
+                WHERE po.capture_id = c.id
+            ) AS pipeline_results
         FROM
             capture c
         WHERE
