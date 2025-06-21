@@ -44,7 +44,6 @@ def gerar_mapa_de_marcadores_html(zoom_start: int = 12) -> Optional[str]:
     df['lon'] = pd.to_numeric(df['lon'])
 
     def cor_icone(indice_str: Optional[str]) -> str:
-        # ... (função de cor existente, sem alterações)
         if not isinstance(indice_str, str): return 'gray'
         lower_indice = indice_str.lower()
         if any(keyword in lower_indice for keyword in ['baixo', 'fraco', 'inexistente']): return 'red'
@@ -69,7 +68,7 @@ def gerar_mapa_de_marcadores_html(zoom_start: int = 12) -> Optional[str]:
             </a>
             """
         
-        # --- POPUP ATUALIZADO COM CSS RESPONSIVO ---
+        # --- POPUP COM CSS RESPONSIVO ---
         popup_html = f"""
         <div style="width: 280px; max-height: 250px; overflow-y: auto; word-wrap: break-word; font-family: sans-serif; font-size: 14px;">
           <h4 style="margin:0 0 10px 0;font-size:16px;">{row.get('titulo_analise', 'Análise Sem Título')}</h4>
