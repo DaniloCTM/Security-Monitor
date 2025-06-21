@@ -165,6 +165,7 @@ def add_capture(user_app_id: int, url: str, date: datetime, lat: float, long: fl
             cur.execute(sql, (user_app_id, url, date, lat, long))
             capture_id = cur.fetchone()[0]
             conn.commit()
+            print(f"capture id:{capture_id}")
             return capture_id
     except psycopg2.errors.UniqueViolation:
         print(f"Erro: A URL '{url}' já foi capturada anteriormente.")
@@ -201,7 +202,7 @@ def add_pipeline_output(capture_id: int, dados: Dict) -> Optional[int]:
     sql = f"INSERT INTO pipeline_output (capture_id, {colunas}) VALUES (%s, {placeholders}) RETURNING id;"
     
     # Prepara a lista de valores na ordem correta
-    valores = [capture_id] + list(dados_achatados.values())
+    valores = [int(capture_id)] + list(dados_achatados.values())
 
     conn = None
     try:
@@ -222,6 +223,7 @@ def add_pipeline_output(capture_id: int, dados: Dict) -> Optional[int]:
     finally:
         if conn:
             conn.close()
+
 
 def get_all_analyses_for_map() -> List[Dict[str, Any]]:
     """

@@ -67,11 +67,11 @@ def send_photo():
     if not all([image_url, lat, long]):
         return jsonify({"error": "Todos os campos são obrigatórios"}), 400
 
-    add_capture(user_app_id, image_url, timestamp, lat, long)
+    capture_id = add_capture(user_app_id, image_url, timestamp, lat, long)
 
     result = run_full_pipeline(image_url)
     
-    add_pipeline_output(1, result)
+    add_pipeline_output(capture_id, result)
 
     return jsonify(result), 200
 
