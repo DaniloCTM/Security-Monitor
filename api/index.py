@@ -4,6 +4,7 @@ from database_manager import add_user_app
 from database_manager import add_capture  
 from database_manager import add_pipeline_output
 from database_manager import get_full_analysis_by_url
+from database_manager import login_user_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -47,10 +48,10 @@ def login():
     if not all([email, senha]):
         return jsonify({"error": "Email e senha são obrigatórios"}), 400
     
-    #if user and check_password_hash(user['senha_hash'], senha):
+    resultado = login_user_app(email, senha)
+    if not resultado:
+        return jsonify({"error": "Email ou senha inválidos"}), 401
     return jsonify({"message": "Login realizado com sucesso!"}), 200
-    #else:
-    #    return jsonify({"error": "Email ou senha inválidos"}), 401
 
 # Send photo to pipeline
 @app.route('/send-photo', methods=['POST'])
@@ -68,7 +69,7 @@ def send_photo():
 
     result = run_full_pipeline(image_url)
     
-    add_pipeline_output(image_url, result)
+    add_pipeline_output(1, result)
 
     return jsonify(result), 200
 

@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from src.shared.parsing import achatar_analise_cpted
 from src.info_extraction.schemas import AnaliseCptedDoLocal
+from werkzeug.security import check_password_hash
 
 # Carrega as variáveis de ambiente do arquivo .env do repositório da API
 load_dotenv()
@@ -178,7 +179,7 @@ def add_capture(user_app_id: int, url: str, date: datetime, lat: float, long: fl
             conn.close()
 
 
-def add_pipeline_output(capture_id: int, dados: AnaliseCptedDoLocal) -> Optional[int]:
+def add_pipeline_output(capture_id: int, dados: Dict) -> Optional[int]:
     """
     Adiciona o resultado processado pelo pipeline para uma captura existente.
 
@@ -190,6 +191,7 @@ def add_pipeline_output(capture_id: int, dados: AnaliseCptedDoLocal) -> Optional
         O ID da nova linha em pipeline_output ou None em caso de erro.
     """
     # Achata o dicionário para que os valores sejam passados na ordem correta
+    dados = AnaliseCptedDoLocal(**dados)
     dados_achatados = achatar_analise_cpted(dados)
 
     # Constrói a query dinamicamente para evitar SQL Injection e facilitar a manutenção
@@ -440,4 +442,44 @@ def get_pipeline_output_by_capture_id(capture_id: int) -> Optional[Dict[str, Any
         if conn:
             conn.close()    
 
-print(get_all_users())
+def login_user_app(email: str, senha_digitada: str) -> bool:
+    """
+    Faz o login de um usuário do aplicativo.
+
+    Verifica se o email existe e se a senha corresponde ao hash armazenado.
+
+    Args:
+        email (str): Email do usuário.
+        senha_digitada (str): Senha que o usuário digitou.
+
+    Returns:
+        bool: True se o login for bem-sucedido, False caso contrário.
+    """
+    sql = "SELECT password FROM user_app WHERE email = %s;"
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql, (email,))
+            resultado = cur.fetchone()
+
+            if resultado is None:
+                print("Usuário não encontrado.")
+                return False
+
+            senha_hash = resultado[0]
+
+            # Faz a verificação usando Werkzeug
+            if check_password_hash(senha_hash, senha_digitada):
+                print("Login bem-sucedido!")
+                return True
+            else:
+                print("Senha incorreta.")
+                return False
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao tentar fazer login: {error}")
+        return False
+    finally:
+        if conn:
+            conn.close()
