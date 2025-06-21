@@ -13,11 +13,10 @@ h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
 idna==3.10
-ipython==9.3.0
 ipython_pygments_lexers==1.1.1
 jedi==0.19.2
 matplotlib-inline==0.1.7
-numpy==2.3.0
+numpy
 pandas==2.3.0
 parso==0.8.4
 prompt_toolkit==3.0.51
@@ -42,3 +41,5 @@ tzdata==2025.2
 urllib3==2.5.0
 wcwidth==0.2.13
 websockets==15.0.1
+Flask==2.2.5
+werkzeug==2.3.8
