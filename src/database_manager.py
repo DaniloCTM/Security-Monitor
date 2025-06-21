@@ -4,6 +4,8 @@ import psycopg2.extras # Essencial para retornar dicionários
 from dotenv import load_dotenv
 from typing import Dict, Any, Optional, List
 from datetime import datetime
+from src.shared.parsing import achatar_analise_cpted
+from src.info_extraction.schemas import AnaliseCptedDoLocal
 
 # Carrega as variáveis de ambiente do arquivo .env do repositório da API
 load_dotenv()
@@ -176,21 +178,24 @@ def add_capture(user_app_id: int, url: str, date: datetime, lat: float, long: fl
             conn.close()
 
 
-def add_pipeline_output(capture_id: int, dados_achatados: Dict[str, Any]) -> Optional[int]:
+def add_pipeline_output(capture_id: int, dados: AnaliseCptedDoLocal) -> Optional[int]:
     """
     Adiciona o resultado processado pelo pipeline para uma captura existente.
 
     Args:
         capture_id: O ID da captura a que este resultado pertence.
-        dados_achatados: O dicionário retornado pela sua função achatar_analise_cpted.
+        dados: O objeto AnaliseCptedDoLocal contendo os dados da análise.
 
     Retorna:
         O ID da nova linha em pipeline_output ou None em caso de erro.
     """
+    # Achata o dicionário para que os valores sejam passados na ordem correta
+    dados_achatados = achatar_analise_cpted(dados)
+
     # Constrói a query dinamicamente para evitar SQL Injection e facilitar a manutenção
     colunas = ", ".join(dados_achatados.keys())
     placeholders = ", ".join(["%s"] * len(dados_achatados))
-    
+
     sql = f"INSERT INTO pipeline_output (capture_id, {colunas}) VALUES (%s, {placeholders}) RETURNING id;"
     
     # Prepara a lista de valores na ordem correta
