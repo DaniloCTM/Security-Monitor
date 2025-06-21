@@ -5,7 +5,8 @@ from database_manager import add_capture
 from database_manager import add_pipeline_output
 from database_manager import get_full_analysis_by_url
 from database_manager import login_user_app
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
+from src.map.map import gerar_mapa_cpted_html
 
 app = Flask(__name__)
 
@@ -85,3 +86,12 @@ def get_analysis():
         return jsonify({"error": "Análise não encontrada"}), 404
     
     return jsonify(result), 200
+
+@app.route('/   ')
+def generate_map():    
+    map_html = gerar_mapa_cpted_html()
+    
+    if not map_html:
+        return jsonify({"error": "Nenhum dado encontrado para gerar o mapa"}), 404
+    
+    return map_html, 200
