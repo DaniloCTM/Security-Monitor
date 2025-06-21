@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-from pipeline import run_full_pipeline  # Certifique-se de que pipeline.py está no mesmo diretório ou no PYTHONPATH
+from pipeline import run_full_pipeline
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -7,13 +8,55 @@ app = Flask(__name__)
 def home():
     return 'Hello, World!'
 
-@app.route('/about')
-def about():
-    return 'About'
-
 @app.route('/run-pipeline', methods=['POST'])
 def run_pipeline():
     data = request.get_json()
     url = data.get('image_url')
     result = run_full_pipeline(url)
     return jsonify(result)
+
+# login route
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+
+    nome = data.get('nome')
+    cpf = data.get('cpf')
+    email = data.get('email')
+    senha = data.get('senha')
+
+    if not all([nome, cpf, email, senha]):
+        return jsonify({"error": "Todos os campos são obrigatórios"}), 400
+
+    # Criptografar a senha
+    senha_hash = generate_password_hash(senha)
+
+    user = {
+        "nome": nome,
+        "cpf": cpf,
+        "email": email,
+        "senha": senha_hash
+    }
+
+    return jsonify({"message": "Usuário cadastrado com sucesso"}), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    senha = data.get('senha')
+
+    #conn = get_db_connection()
+    #cursor = conn.cursor(dictionary=True)
+
+    #cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    #user = cursor.fetchone()
+
+    #cursor.close()
+    #conn.close()
+
+    #if user and check_password_hash(user['senha_hash'], senha):
+    return jsonify({"message": "Login realizado com sucesso!"}), 200
+    #else:
+    #    return jsonify({"error": "Email ou senha inválidos"}), 401
