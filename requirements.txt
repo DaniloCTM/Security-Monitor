@@ -10,8 +10,10 @@ pydantic==2.11.7
 # Essencial para carregar segredos do arquivo .env
 python-dotenv==1.0.1  
 
+
 # Opcional, mas usado nos scripts auxiliares para gerar relatórios
 pandas==2.3.0
 
 Flask==2.2.5
 werkzeug==2.3.8
+psycopg2-binary

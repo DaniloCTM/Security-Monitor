@@ -1,0 +1,258 @@
+import os
+import psycopg2
+import psycopg2.extras # Essencial para retornar dicionários
+from dotenv import load_dotenv
+from typing import Dict, Any, Optional, List, Tuple
+from datetime import datetime
+
+# Carrega as variáveis de ambiente do arquivo .env do repositório da API
+load_dotenv()
+
+def get_db_connection():
+    """
+    Cria e retorna uma nova conexão com o banco de dados.
+    Lança uma exceção se a conexão falhar.
+    Nota: Para aplicações de alta performance, considere usar um "connection pool".
+    """
+    try:
+        conn = psycopg2.connect(
+            dbname=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASS"),
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT")
+        )
+        return conn
+    except psycopg2.OperationalError as e:
+        print(f"ERRO CRÍTICO: Não foi possível conectar ao banco de dados. {e}")
+        raise
+
+def add_user_app(name: str, email: str, hashed_password: str) -> Optional[int]:
+    """
+    Adiciona um novo usuário do aplicativo (quem tira a foto) ao banco de dados.
+
+    Args:
+        name: Nome do usuário.
+        email: Email do usuário (deve ser único).
+        hashed_password: Senha do usuário já criptografada.
+
+    Retorna:
+        O ID do novo usuário ou None em caso de erro.
+    """
+    sql = "INSERT INTO user_app (name, email, password) VALUES (%s, %s, %s) RETURNING id;"
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql, (name, email, hashed_password))
+            user_id = cur.fetchone()[0]
+            conn.commit()
+            return user_id
+    except psycopg2.errors.UniqueViolation:
+        print(f"Erro: O email '{email}' já está cadastrado.")
+        return None
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao adicionar usuário: {error}")
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def add_user_platform(name: str, email: str, hashed_password: str) -> Optional[int]:
+    """
+    Adiciona um novo usuário da plataforma (dashboard, admin) ao banco de dados.
+
+    ATENÇÃO DE SEGURANÇA:
+    A senha fornecida a esta função DEVE ser previamente tratada com um
+    algoritmo de hash forte, como o bcrypt. NUNCA passe senhas em texto puro.
+
+    Args:
+        name (str): O nome completo do usuário.
+        email (str): O email do usuário, que deve ser único.
+        hashed_password (str): A senha já processada por um hash.
+
+    Returns:
+        Optional[int]: O ID do novo usuário criado, ou None em caso de erro
+                         (por exemplo, se o email já existir).
+    """
+    # O SQL para inserir um novo usuário na tabela user_platform e retornar seu id.
+    sql = "INSERT INTO user_platform (name, email, password) VALUES (%s, %s, %s) RETURNING id;"
+    
+    conn = None
+    try:
+        # Pega uma nova conexão com o banco
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            # Executa o comando SQL, passando os dados de forma segura
+            cur.execute(sql, (name, email, hashed_password))
+            
+            # Pega o ID retornado pelo comando 'RETURNING id'
+            user_id = cur.fetchone()[0]
+            
+            # Se a execução foi bem-sucedida, salva a transação
+            conn.commit()
+            
+            print(f"Usuário da plataforma '{name}' inserido com sucesso. ID: {user_id}")
+            return user_id
+            
+    except psycopg2.errors.UniqueViolation:
+        # Erro específico para quando o email (que é UNIQUE) já existe
+        print(f"Erro: O email '{email}' já está cadastrado para um usuário da plataforma.")
+        if conn:
+            conn.rollback() # Reverte a transação
+        return None
+        
+    except (Exception, psycopg2.Error) as error:
+        # Captura outros possíveis erros de banco de dados
+        print(f"Erro ao adicionar usuário da plataforma: {error}")
+        if conn:
+            conn.rollback() # Reverte a transação
+        return None
+        
+    finally:
+        # Garante que a conexão seja sempre fechada
+        if conn:
+            conn.close()
+
+
+def find_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """
+    Busca um usuário do aplicativo pelo seu email.
+
+    Retorna:
+        Um dicionário com os dados do usuário ou None se não for encontrado.
+    """
+    sql = "SELECT * FROM user_app WHERE email = %s;"
+    conn = None
+    try:
+        conn = get_db_connection()
+        # DictCursor faz com que o resultado seja um dicionário (chave: valor)
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+            cur.execute(sql, (email,))
+            user = cur.fetchone()
+            return dict(user) if user else None
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao buscar usuário: {error}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+
+# ==============================================================================
+# FUNÇÕES DO PIPELINE (CAPTURA E RESULTADO)
+# ==============================================================================
+
+def add_capture(user_app_id: int, url: str, date: datetime, lat: float, long: float) -> Optional[int]:
+    """
+    Adiciona uma nova captura (imagem de entrada do pipeline) ao banco de dados.
+
+    Retorna:
+        O ID da nova captura ou None em caso de erro.
+    """
+    sql = "INSERT INTO capture (user_app_id, url, date, lat, long) VALUES (%s, %s, %s, %s, %s) RETURNING id;"
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql, (user_app_id, url, date, lat, long))
+            capture_id = cur.fetchone()[0]
+            conn.commit()
+            return capture_id
+    except psycopg2.errors.UniqueViolation:
+        print(f"Erro: A URL '{url}' já foi capturada anteriormente.")
+        return None
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao inserir captura: {error}")
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_pipeline_output(capture_id: int, dados_achatados: Dict[str, Any]) -> Optional[int]:
+    """
+    Adiciona o resultado processado pelo pipeline para uma captura existente.
+
+    Args:
+        capture_id: O ID da captura a que este resultado pertence.
+        dados_achatados: O dicionário retornado pela sua função achatar_analise_cpted.
+
+    Retorna:
+        O ID da nova linha em pipeline_output ou None em caso de erro.
+    """
+    # Constrói a query dinamicamente para evitar SQL Injection e facilitar a manutenção
+    colunas = ", ".join(dados_achatados.keys())
+    placeholders = ", ".join(["%s"] * len(dados_achatados))
+    
+    sql = f"INSERT INTO pipeline_output (capture_id, {colunas}) VALUES (%s, {placeholders}) RETURNING id;"
+    
+    # Prepara a lista de valores na ordem correta
+    valores = [capture_id] + list(dados_achatados.values())
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute(sql, valores)
+            output_id = cur.fetchone()[0]
+            conn.commit()
+            return output_id
+    except psycopg2.errors.UniqueViolation:
+        print(f"Erro: Já existe um resultado de pipeline para a captura ID {capture_id}.")
+        return None
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao inserir resultado do pipeline: {error}")
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+
+def get_full_analysis_by_url(url: str) -> Optional[Dict[str, Any]]:
+    """
+    Busca todos os dados relacionados a uma captura (usuário, captura e resultado)
+    usando a URL da imagem como chave de busca. Esta é a principal função de "leitura".
+
+    Retorna:
+        Um dicionário com todos os dados combinados ou None se a URL não for encontrada.
+    """
+    sql = """
+        SELECT
+            ua.id AS user_id,
+            ua.name AS user_name,
+            ua.email AS user_email,
+            c.id AS capture_id,
+            c.url AS capture_url,
+            c.date AS capture_date,
+            c.lat,
+            c.long,
+            -- Usar um sub-SELECT com row_to_json é uma forma elegante
+            -- de agrupar os resultados do pipeline em um objeto aninhado.
+            (SELECT row_to_json(po) FROM pipeline_output po WHERE po.capture_id = c.id) AS pipeline_results
+        FROM
+            capture c
+        JOIN
+            user_app ua ON c.user_app_id = ua.id
+        WHERE
+            c.url = %s;
+    """
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+            cur.execute(sql, (url,))
+            resultado = cur.fetchone()
+            return dict(resultado) if resultado else None
+    except (Exception, psycopg2.Error) as error:
+        print(f"Erro ao buscar análise completa: {error}")
+        return None
+    finally:
+        if conn:
+            conn.close()
